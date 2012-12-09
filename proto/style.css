@@ -1,0 +1,50 @@
+html {
+  margin: 0px;
+  padding: 0px;
+  background-color: #ffffff;
+}
+body {
+  margin: 0;
+  padding: 0;
+  undefined
+}
+.container .row-fluid .span4.span4-1 {
+  padding: 10px;
+}
+.container .row-fluid.row-fluid-1 {
+  padding: 15px 0px 0px 0px;
+}
+.container.container-1 {
+  margin-top: 0px;
+  background: #3b5566;
+}
+.container.container-2 {
+  background: #ccc9ff;
+}
+.container .row-fluid .span8 .page-header {
+  margin: 20px 0px 20px 0px;
+  border: none;
+}
+.container .row-fluid .span8 .page-header h1 {
+  font-family:"josefin sans";
+  text-align: center;
+  color: #cfcfcf;
+}
+.container .row-fluid .span8 .page-header h1 small {
+  font-size: 17pt;
+}
+.container .row-fluid .span4 .btn {
+  margin: 0px 0px 0px 37px;
+  background: #779bff;
+  background-image: -moz-linear-gradient(270deg, #779bff 0%, #234b8a 100%);
+  background-image: -webkit-linear-gradient(270deg, #779bff 0%, #234b8a 100%);
+  background-image: -o-linear-gradient(270deg, #779bff 0%, #234b8a 100%);
+  background-image: linear-gradient(180deg, #779bff 0%, #234b8a 100%);
+  border-top: 1px solid rgba(0, 0, 0, 0.14902);
+  border-right: 1px solid rgba(0, 0, 0, 0.14902);
+  border-left: 1px solid rgba(0, 0, 0, 0.14902);
+}
+.container .row-fluid .span4 .navbar-form input.textinput {
+  margin: 5px 0px 11px 0px;
+  text-align: center;
+}
