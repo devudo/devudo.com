@@ -16,7 +16,7 @@
   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
 -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>Tour</title>
+    <title>DEVUDO</title>
 
   </head>
 
