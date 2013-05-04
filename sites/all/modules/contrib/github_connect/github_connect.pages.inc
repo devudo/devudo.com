@@ -32,22 +32,28 @@ function github_connect_get_access_token() {
     $account = github_connect_get_token_user($token);
 
     if ($user->uid == 0) { // First the case where an anonymous user attempts a login
+      watchdog('github_connect', 'An anonymous user attempts login', array(), WATCHDOG_DEBUG);
       if ($account) { // If there is a user with the token log that user in.
+        watchdog('github_connect', 'There is a token, attempting login for uid !uid', array('!uid' => $account->uid), WATCHDOG_DEBUG);
         _github_connect_user_login($account);
         drupal_goto();
       }
       else { // Otherwise register the user and log in
         $github_user = _github_connect_get_github_user_info($token);
+        watchdog('github_connect', 'Registering a user', array(), WATCHDOG_DEBUG);
 
         if ($existing_user_by_mail = user_load_by_mail($github_user['email'])) {
           // If a user with this email address exists, let him connect the github account to his already created account.
+          watchdog('github_connect', 'User with email !email already exists, redirecting', array('!email' => $github_user['email']), WATCHDOG_DEBUG);
           drupal_goto('github/verify/email/' . $existing_user_by_mail->uid . '/' . $token);
         }
         else {
           // Otherwise make sure there is no account with the same username
           if ($existing_user_by_name = user_load_by_name($github_user['login'])) {
+            watchdog('github_connect', 'User with login !login already exists, redirecting', array('!login' => $github_user['login']), WATCHDOG_DEBUG);
             drupal_goto('github/username/' . $existing_user_by_name->uid . '/' . $token);
           } else {
+            watchdog('github_connect', 'Registering new user', array(), WATCHDOG_DEBUG);
             _github_connect_register($github_user, $token);
             drupal_goto();
           }
@@ -63,13 +69,10 @@ function github_connect_get_access_token() {
       else {
         $github_user = _github_connect_get_github_user_info($token);
 
-        if (!$github_user['email']) {
-          drupal_set_message(t('We could not connect your GitHub account. You need to have a public email address registered with your GitHub account.'), 'error');
-          drupal_goto('user/' . $user->uid . '/github');
-        }
-
         if ($github_user['html_url']) {
           _github_connect_save_github_user($user, $token);
+
+          module_invoke_all('github_added', $user, $github_user['login']);
 
           drupal_set_message(t('Your GitHub account is now connected.'));
           drupal_goto('user/' . $user->uid . '/github');
@@ -89,20 +92,6 @@ function github_connect_get_access_token() {
  */
 function github_user_account($account) {
   drupal_set_title(format_username($account));
-
-  // Check to see if we got a response
-  $result = openid_complete();
-  if ($result['status'] == 'success') {
-    $identity = $result['openid.claimed_id'];
-    $query = db_insert('authmap')
-      ->fields(array(
-      'uid' => $account->uid,
-      'authname' => $identity,
-      'module' => 'openid',
-    ))
-      ->execute();
-    drupal_set_message(t('Successfully added %identity', array('%identity' => $identity)));
-  }
 
   $header = array(t('GitHub account'), t('Operations'));
   $rows = array();
@@ -137,10 +126,12 @@ function github_user_connect() {
 }
 
 function github_user_connect_submit($form, &$form_state) {
+  global $base_url;
+
   $return_to = url('user/' . arg(1) . '/github', array('absolute' => TRUE));
 
   $client_id = variable_get('github_connect_client_id');
-  $link = 'https://github.com/login/oauth/authorize?client_id=' . $client_id;
+  $link = 'https://github.com/login/oauth/authorize?client_id=' . $client_id . '&scope=user,public&redirect_uri=' . urlencode($base_url . '/github/register/create');
 
   $form_state['redirect'] = $link;
 }
@@ -149,28 +140,35 @@ function github_user_connect_submit($form, &$form_state) {
  * Menu callback; Disconnect the specified Github account from the system.
  */
 function github_connect_user_delete_form($form, $form_state, $account, $aid = 0) {
-  $authname = db_query("SELECT authname FROM {authmap} WHERE uid = :uid AND aid = :aid AND module = 'github_connect'", array(
-    ':uid' => $account->uid,
-    ':aid' => $aid,
-  ))
-    ->fetchField();
-  return confirm_form(array(), t('Are you sure you want to disconnect the Github account %authname for %user?', array('%authname' => $authname, '%user' => $account->name)), 'user/' . $account->uid . '/github');
+  module_load_include('inc', 'github_connect');
+
+  $github_username = _github_connect_get_github_username($account);
+  $form['account'] = array(
+    '#type' => 'value',
+    '#value' => $account,
+  );
+  $form['github_username'] = array(
+    '#type' => 'value',
+    '#value' => $github_username,
+  );
+  return confirm_form($form, t('Are you sure you want to disconnect the Github account %authname for %user?', array('%authname' => $github_username, '%user' => $account->name)), 'user/' . $account->uid . '/github');
 }
 
 function github_connect_user_delete_form_submit($form, &$form_state) {
   module_load_include('inc', 'github_connect');
 
   $query1 = db_delete('authmap')
-    ->condition('uid', $form_state['build_info']['args'][0]->uid)
+    ->condition('uid', $form_state['values']['account']->uid)
     ->condition('aid', $form_state['build_info']['args'][1])
     ->condition('module', 'github_connect')
     ->execute();
 
   // Delete the user from github_connect_users table.
   $query2 = db_delete('github_connect_users')
-    ->condition('uid', $form_state['build_info']['args'][0]->uid)
+    ->condition('uid', $form_state['values']['account']->uid)
     ->execute();
   if ($query1 && $query2) {
+    module_invoke_all('github_removed', $form_state['values']['account'], $form_state['values']['github_username']);
     drupal_set_message(t('Github account disconnected.'));
   }
 
@@ -225,6 +223,8 @@ function github_connect_verify_email_form_submit($form, &$form_state) {
   // Log in the connected user.
   _github_connect_user_login($account);
   drupal_set_message(t('You are now connected with your GitHub account.'));
+
+  module_invoke_all('github_added', $account, _github_connect_get_github_username($account));
 
   drupal_goto();
 }
