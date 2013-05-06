@@ -1,0 +1,188 @@
+<?php
+
+/**
+ * Implements hook_field_formatter_info_alter().
+ */
+function simple_field_formatter_field_formatter_info_alter(&$info) {
+  // added to ALL formatters...
+  foreach ($info as $formatter_key => &$formatter) {
+    $formatter['settings'] += array(
+      'custom_link_to_node' => '',
+      'custom_prefix' => '', //give a default value for when the form is first loaded
+      'custom_suffix' => '', //ditto
+      'custom_reverse' => '',
+      'custom_trim' => '',
+      'custom_strtolower' => '',
+      'custom_strtoupper' => '',
+      'custom_ucfirst' => '',
+    );
+  }
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary_alter().
+ */
+function simple_field_formatter_field_formatter_settings_summary_alter(&$summary, $context) {
+
+  $display = $context['instance']['display'][$context['view_mode']];
+  $settings = $display['settings'];
+  //watchdog('custom-test',print_r($settings,TRUE));
+  if (!empty($settings)) {
+    $summary = t('<strong>Link to Entity:</strong> @custom_link_to_node <br/> <strong>Prefix:</strong> @custom_prefix <br/> <strong>Suffix:</strong> @custom_suffix<br/> <strong>Reverse:</strong> @custom_reverse<br/> <strong>Trim:</strong> @custom_trim<br/> <strong>strtolower:</strong> @custom_strtolower<br/> <strong>strtoupper:</strong> @custom_strtoupper<br/> <strong>ucfirst:</strong> @custom_ucfirst', array(
+      '@custom_link_to_node'     => $settings['custom_link_to_node'],
+      '@custom_prefix'     => $settings['custom_prefix'],
+      '@custom_suffix'  => $settings['custom_suffix'],
+  		'@custom_reverse'  => $settings['custom_reverse'],
+  		'@custom_trim'  => $settings['custom_trim'],
+  		'@custom_strtolower'  => $settings['custom_strtolower'],
+  		'@custom_strtoupper'  => $settings['custom_strtoupper'],
+  		'@custom_ucfirst'  => $settings['custom_ucfirst'],
+    )); // we use t() for translation and placeholders to guard against attacks
+  }else{
+    $summary .= '<br />';
+  }
+}
+
+/**
+ * Get the formatter settings for a field instance and display.
+ *
+ * @param string $field_name
+ * @param string $display
+ * @param string $bundle
+ * @param string $display
+ *
+ * @return array
+ */
+function simple_field_formatter_formatter_info($field_name, $entity_type, $bundle, $display) {
+
+  $info =_field_info_collate_fields();
+  // There is no bundle for this entity type so the bundle name is the
+  // entity_type name.
+  if (empty($bundle)) {
+    $bundle = $entity_type;
+  }
+
+  $field_display = $info['instances'][$entity_type][$bundle][$field_name]['display'];
+  $default = $field_display['default']['settings'];
+  if (isset($field_display[$display]['settings'])) {
+    return $field_display[$display]['settings'] + $default;
+  }
+  return $default;
+}
+
+/**
+ * Implements hook_field_attach_view_alter().
+ *
+ */
+function simple_field_formatter_field_attach_view_alter(&$output, $context) {
+ 	foreach (element_children($output) as $field_name) {
+ 	  $element = &$output[$field_name];
+ 	  //watchdog('formatter',print_r($element,TRUE));
+ 	  $instance = field_info_instance($element['#entity_type'], $field_name, $element['#bundle']);
+ 	  $display = isset($instance['display'][$context['view_mode']]) ? $instance['display'][$context['view_mode']] : $instance['display']['default'];
+ 	  $settings = $display['settings'];
+ 	  if (!empty($settings)) {
+ 	    $custom_link_to_node = $settings['custom_link_to_node'];
+ 	    $custom_prefix = $settings['custom_prefix'];
+ 	    $custom_suffix = $settings['custom_suffix'];
+ 	    $custom_reverse = $settings['custom_reverse'];
+ 	    $custom_trim = $settings['custom_trim'];
+ 	    $custom_strtolower = $settings['custom_strtolower'];
+ 	    $custom_strtoupper = $settings['custom_strtoupper'];
+ 	    $custom_ucfirst = $settings['custom_ucfirst'];
+ 	  }
+ 	  foreach ($element['#items'] as $delta => $item) {
+ 	    if(isset($item['safe_value'])){
+ 	      $original_value = $item['safe_value']; // Getting the actual value
+ 	      $modified_value = $original_value;
+ 	      if($custom_reverse){
+ 	        $modified_value = strrev($modified_value);
+ 	      }
+ 	      if($custom_trim){
+ 	        $modified_value = trim($modified_value);
+ 	      }
+ 	      if($custom_strtolower){
+ 	        $modified_value = strtolower($modified_value);
+ 	      }
+ 	      if($custom_strtoupper){
+ 	        $modified_value = strtoupper($modified_value);
+ 	      }
+ 	      if($custom_ucfirst){
+ 	        $modified_value = ucfirst($modified_value);
+ 	      }
+ 	      if($custom_link_to_node && ($context['entity_type'] == 'node')){
+ 	        $entity_id = $context['entity']->nid;
+ 	        $path = drupal_get_path_alias("node/$entity_id");
+ 	        $modified_value = '<a href="/'.$path.'">'.$modified_value.'</a>';
+ 	      }
+ 	      if($modified_value != $original_value){
+ 	        $element[$delta]['#markup'] = $modified_value;
+ 	      }
+ 	    }
+ 	    if (!empty($custom_suffix)) {
+ 	      $element[$delta]['#suffix'] = $custom_suffix;
+ 	    }
+ 	    if (!empty($custom_prefix)) {
+ 	      $element[$delta]['#prefix'] = $custom_prefix;
+ 	    }
+ 	    //$modified_value = $custom_prefix . $original_value . $custom_suffix;
+ 	    //$element[$delta]['#markup'] = $modified_value;
+ 	  }
+ 	}
+}
+
+function simple_field_formatter_field_formatter_settings_form_alter(&$settings_form, $context) {
+
+  $display = $context['instance']['display'][$context['view_mode']];
+  $settings = $display['settings'];
+
+  $settings_form['custom_link_to_node'] = array(
+    '#title' => t('Link this field to the original piece of content'),
+    '#description' => t("Enable to override and Link to the original piece of content"),
+    '#type' => 'checkbox',
+    '#default_value' => $settings['custom_link_to_node'],               // Get the value if it's already been set
+  );
+
+  $settings_form['custom_prefix'] = array(
+    '#type'           => 'textfield',                        // Use a textbox
+    '#title'          => t('Prefix'),                      // Widget label
+    '#description'    => t('Prefix will display before the content.'),  // helper text
+    '#default_value'  => $settings['custom_prefix'],               // Get the value if it's already been set
+  );
+  $settings_form['custom_suffix'] = array(
+    '#type'           => 'textfield',                        // Use a textbox
+    '#title'          => t('Suffix'),                      // Widget label
+    '#description'    => t('Suffix will display after the content.'),  // helper text
+    '#default_value'  => $settings['custom_suffix'],               // Get the value if it's already been set
+  );
+  $settings_form['custom_reverse'] = array(
+    '#type'           => 'checkbox',                        // Use a textbox
+    '#title'          => t('Reverse'),                      // Widget label
+    '#description'    => t('Reverses the Content.'),  // helper text
+    '#default_value'  => $settings['custom_reverse'],               // Get the value if it's already been set
+  );
+  $settings_form['custom_trim'] = array(
+    '#type'           => 'checkbox',                        // Use a textbox
+    '#title'          => t('Trim'),                      // Widget label
+    '#description'    => t('Removes Leading & trailing spaces from the Content.'),  // helper text
+    '#default_value'  => $settings['custom_trim'],               // Get the value if it's already been set
+  );
+  $settings_form['custom_strtolower'] = array(
+    '#type'           => 'checkbox',                        // Use a textbox
+    '#title'          => t('strtolower'),                      // Widget label
+    '#description'    => t('Converts a string to lowercase letters.'),  // helper text
+    '#default_value'  => $settings['custom_strtolower'],               // Get the value if it's already been set
+  );
+  $settings_form['custom_strtoupper'] = array(
+    '#type'           => 'checkbox',                        // Use a textbox
+    '#title'          => t('strtoupper'),                      // Widget label
+    '#description'    => t('Converts a string to uppercase letters.'),  // helper text
+    '#default_value'  => $settings['custom_strtoupper'],               // Get the value if it's already been set
+  );
+  $settings_form['custom_ucfirst'] = array(
+    '#type'           => 'checkbox',                        // Use a textbox
+    '#title'          => t('ucfirst'),                      // Widget label
+    '#description'    => t('Converts the first character of a string to uppercase.'),  // helper text
+    '#default_value'  => $settings['custom_ucfirst'],               // Get the value if it's already been set
+  );
+}
