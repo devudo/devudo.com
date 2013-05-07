@@ -75,6 +75,15 @@ function github_connect_menu() {
   return $items;
 }
 
+
+/**
+ * Implements hook_permission().
+ */
+function github_connect_permission() {
+  return array('administer github_connect');
+}
+
+
 function github_connect_hook_info() {
   $hooks['github_added'] = array(
     'group' => 'github',
