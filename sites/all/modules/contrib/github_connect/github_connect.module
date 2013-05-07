@@ -80,7 +80,11 @@ function github_connect_menu() {
  * Implements hook_permission().
  */
 function github_connect_permission() {
-  return array('administer github_connect');
+  return array(
+    'administer github_connect' => array(
+      'title' => 'administer github_connect',
+    ),
+  );
 }
 
 
