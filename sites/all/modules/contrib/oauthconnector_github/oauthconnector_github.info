@@ -1,0 +1,4 @@
+name = Oauth Connector - GitHub Preset
+description = A Oauth Connector preset for a GitHub provider.
+core = 7.x
+dependencies[] = oauthconnector
