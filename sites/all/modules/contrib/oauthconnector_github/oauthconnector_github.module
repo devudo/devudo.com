@@ -1,0 +1,52 @@
+<?php
+
+function oauthconnector_github_oauthconnector_presets_alter(&$presets) {
+  $github = new stdClass();
+  $github->disabled = FALSE; /* Edit this to true to make a default provider disabled initially */
+  $github->name = 'github';
+  $github->title = 'GitHub';
+  $github->url = 'https://api.github.com';
+  $github->consumer_advanced = array(
+    'oauth2' => 1,
+    'signature method' => 'HMAC-SHA1',
+    'authentication realm' => '',
+    'request token endpoint' => '/oauth/request_token',
+    'authorization scope' => 'public_repo',
+    'authorization endpoint' => 'https://github.com/login/oauth/authorize',
+    'access token endpoint' => 'https://github.com/login/oauth/access_token',
+  );
+  $github->mapping = array(
+    'fields' => array(
+      'uid' => array(
+        'resource' => 'https://api.github.com/user',
+        'method post' => 0,
+        'field' => 'id',
+        'querypath' => FALSE,
+        'sync_with_field' => '',
+      ),
+      'name' => array(
+        'resource' => 'https://api.github.com/user',
+        'method post' => 0,
+        'field' => 'name',
+        'querypath' => FALSE,
+        'sync_with_field' => '',
+      ),
+      'avatar' => array(
+        'resource' => 'https://api.github.com/user',
+        'method post' => 0,
+        'field' => 'avatar_url',
+        'querypath' => FALSE,
+        'sync_with_field' => 'picture',
+      ),
+    ),
+    'format' => 'json',
+  );
+
+  $presets = array_merge($presets, array(
+    'github' => array(
+      'data' => $github,
+      'name' => 'GitHub',
+    ),
+  ));
+}
+

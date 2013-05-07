@@ -1,3 +1,7 @@
+OAuth 7.x-3.x, 2013--
+------------------------------
+Issue #1987350 by juampy: Fixed Warnings when authorizing a consumer via the user interface.
+
 OAuth 7.x-3.1, 2013-2-3
 ------------------------------
 #1529166 by barraponto: implement hook_requirements() to check that cURL library is available.
