@@ -6,17 +6,6 @@
  */
 
 /**
- * Implementation of hook_autoload_info().
- */
-function oauthloginprovider_autoload_info() {
-  return array(
-    'OAuthLoginResource' => array(
-      'file' => 'OAuthLoginResource.php',
-    ),
-  );
-}
-
-/**
  * Implementation of hook_ctools_plugin_api().
  */
 function oauthloginprovider_ctools_plugin_api($module, $api) {
@@ -33,8 +22,27 @@ function oauthloginprovider_ctools_plugin_api($module, $api) {
  */
 function oauthloginprovider_services_resources() {
   $res = array(
-    // OAuth login resource
-    'oauthlogin' => ServicesOop::definitionFromClass('OAuthLoginResource'),
+    'oauthlogin' => array(
+      'actions' => array(
+        'info' => array(
+          'access callback' => 'user_access',
+          'access arguments' => array('access content'),
+          'access arguments append' => false,
+          'args' => array(),
+          'help' => 'Retrieves information about the current user',
+          'callback' => 'oauthloginprovider_user_info_action',
+        ),
+      ),
+    ),
   );
   return $res;
+}
+
+function oauthloginprovider_user_info_action() {
+  global $user;
+
+  $data = (array)$user;
+  unset($data['pass']);
+
+  return (object)$data;
 }
