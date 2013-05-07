@@ -1,0 +1,6 @@
+name = Services OOP
+description = Utility functions for working with services in a more OOP-friendly manner
+package = Services
+dependencies[] = autoload
+core = "6.x"
+php = "5.2"
