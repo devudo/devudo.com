@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Devudo Connect feature.
+ */
+
+include_once 'devudo_connect.features.inc';

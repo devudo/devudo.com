@@ -1,0 +1,17 @@
+name = Devudo Connect
+core = 7.x
+package = Devudo
+dependencies[] = connector
+dependencies[] = ctools
+dependencies[] = features
+dependencies[] = oauthconnector
+dependencies[] = services
+features[ctools][] = oauthconnector::
+features[ctools][] = services:services:3
+features[features_api][] = api:1
+features[oauthconnector_provider][] = github
+features[oauthconnector_provider][] = twitter
+features[services_endpoint][] = api
+features[user_permission][] = access connections tab
+features[user_permission][] = connect with oauthconnector_github
+features[user_permission][] = connect with oauthconnector_twitter
