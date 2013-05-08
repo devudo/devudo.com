@@ -23,6 +23,7 @@ function devudo_custom_menu_alter(&$items){
 
   // Make our own user pages
   $items['login'] = $items['user'];
+  $items['logout'] = $items['user/logout'];
   $items['signup'] = $items['user/register'];
   $items['password'] = $items['user/password'];
  
@@ -31,6 +32,7 @@ function devudo_custom_menu_alter(&$items){
  
   // Unset Drupal pages
   $items['user/login'] =
+  $items['user/logout'] =
   $items['user/password'] =
   $items['user/register'] = 
     array();
