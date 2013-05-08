@@ -8,10 +8,19 @@ html body.admin-menu {
 }
 
 @media (min-width: 801px){
-  
   .main-container {
     margin-top: 100px;
   }
   .navbar-fixed-top, .navbar-fixed-bottom {
   }  
+}
+
+
+@media (max-height: 320px){
+  .navbar-fixed-top, .navbar-fixed-bottom {
+    position: static;
+  }
+  .main-container {
+    margin-top: 10px;
+  }
 }
