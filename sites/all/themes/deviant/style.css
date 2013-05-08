@@ -1,0 +1,8 @@
+body.admin-menu .navbar-fixed-top {
+  z-index: 998;
+  top: 29px;
+}
+
+html body.admin-menu {
+  margin-top: 97px !important;
+}

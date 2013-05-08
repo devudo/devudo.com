@@ -1,0 +1,17 @@
+name = Devudo Deviant
+description = Bootstrap subtheme
+version = 0.1
+core = 7.x
+base theme = bootstrap
+
+regions[navigation]     = 'Navigation'
+regions[header]         = 'Top Bar'
+regions[highlighted]    = 'Highlighted'
+regions[help]           = 'Help'
+regions[content]        = 'Content'
+regions[footer]         = 'Footer'
+
+stylesheets[all][] = style.css
+
+settings[toggle_name] = 0
+settings[toggle_search] = 0
