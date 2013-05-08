@@ -6,3 +6,12 @@ body.admin-menu .navbar-fixed-top {
 html body.admin-menu {
   margin-top: 97px !important;
 }
+
+@media (min-width: 801px){
+  
+  .main-container {
+    margin-top: 100px;
+  }
+  .navbar-fixed-top, .navbar-fixed-bottom {
+  }  
+}
