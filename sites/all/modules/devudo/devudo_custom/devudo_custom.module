@@ -34,7 +34,8 @@ function devudo_custom_menu_alter(&$items){
   $items['user/login'] =
   $items['user/logout'] =
   $items['user/password'] =
-  $items['user/register'] = 
+  $items['user/register'] =
+  $items['user'] =
     array();
     
   // Change tab names for users
