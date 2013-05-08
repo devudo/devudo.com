@@ -1,0 +1,78 @@
+<?php
+/**
+ *
+ */
+
+/**
+ * Implements hook_menu_alter()
+ */
+function devudo_custom_menu(){
+  $items['home'] = array(
+    'title' => 'Log in',
+    'access callback' => 'user_is_anonymous',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+  return $items;
+}
+
+
+/**
+ * Implements hook_menu_alter()
+ */
+function devudo_custom_menu_alter(&$items){
+
+  // Make our own user pages
+  $items['login'] = $items['user'];
+  $items['signup'] = $items['user/register'];
+  $items['password'] = $items['user/password'];
+ 
+  // Set them all as callbacks.
+  $items['login']['type'] = $items['signup']['type'] = $items['password']['type'] = MENU_CALLBACK;
+ 
+  // Unset Drupal pages
+  $items['user/login'] =
+  $items['user/password'] =
+  $items['user/register'] = 
+    array();
+}
+
+/**
+ * Implements form_alter()
+ */
+function devudo_custom_form_alter(&$form, &$form_state, $form_id) {
+
+  //drupal_set_message($form_id);
+  if ($form_id == 'user_login'){
+    // Set placeholders
+    $form['name']['#placeholder'] = $form['name']['#title'];
+    $form['pass']['#placeholder'] = $form['pass']['#title'];
+    
+    // Hide Titles
+    $form['name']['#title'] = $form['pass']['#title'] = NULL;
+    
+    // Remove Descriptions
+    $form['name']['#description'] = $form['pass']['#description'] = NULL;
+
+  }
+}
+
+/**
+ * Implements hook_block_view_alter()
+ */
+function devudo_custom_block_view_alter(&$data, $block){
+  if ($block->module == 'connector'){
+    $data['subject'] = t('or');
+  }
+}
+
+/**
+ * Implements hook_block_view_alter()
+ */
+function devudo_custom_preprocess_page(&$vars) {
+  if (user_is_anonymous()) {
+    $vars['breadcrumb'] = '';
+    $vars['title'] = t('Welcome to Devudo');
+    
+    $vars['columns'] = 4;
+  }
+}
