@@ -6,21 +6,48 @@ body.admin-menu .navbar-fixed-top {
 html body.admin-menu {
   margin-top: 97px !important;
 }
+  
+.navbar .brand {
+  margin-left: 0px;
+}
 
-@media (min-width: 801px){
-  .main-container {
-    margin-top: 100px;
-  }
-  .navbar-fixed-top, .navbar-fixed-bottom {
-  }  
+.main-container {
+  margin-top: 10px;
 }
 
 
-@media (max-height: 320px){
-  .navbar-fixed-top, .navbar-fixed-bottom {
-    position: static;
-  }
-  .main-container {
-    margin-top: 10px;
-  }
+/**
+ * Splash Page
+ */
+.page-login .main-container,
+.page-login #navbar .container {
+  width: 300px;
+}
+
+.page-login a.logo {
+  width: 100%;
+  float: none;
+  display: block;
+  text-align: center;
+}
+.page-login h1.brand {
+  width: 100%;
+  float: none;
+  display: block;
+  text-align: center;
+}
+
+.page-login .navbar-fixed-top {
+  position: static;
+}
+
+.page-login form input,
+.page-login form button.form-submit {
+  width: 100%;
+}
+
+#block-connector-one-click-block .block-title {
+  font-family: cursive;
+  font-style: italic;
+  text-align: center;
 }
