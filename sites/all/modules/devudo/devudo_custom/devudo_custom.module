@@ -49,6 +49,9 @@ function devudo_custom_form_alter(&$form, &$form_state, $form_id) {
 
   //drupal_set_message($form_id);
   if ($form_id == 'user_login'){
+    
+    drupal_set_title(t('Welcome to Devudo'));
+    
     // Set placeholders
     $form['name']['#placeholder'] = $form['name']['#title'];
     $form['pass']['#placeholder'] = $form['pass']['#title'];
