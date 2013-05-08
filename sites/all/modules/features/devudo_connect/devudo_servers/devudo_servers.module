@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the Devudo Servers feature.
- */
-
-include_once 'devudo_servers.features.inc';
