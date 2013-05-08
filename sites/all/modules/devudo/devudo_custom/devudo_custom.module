@@ -71,14 +71,3 @@ function devudo_custom_block_view_alter(&$data, $block){
   }
 }
 
-/**
- * Implements hook_block_view_alter()
- */
-function devudo_custom_preprocess_page(&$vars) {
-  if (user_is_anonymous()) {
-    $vars['breadcrumb'] = '';
-    $vars['title'] = t('Welcome to Devudo');
-    
-    $vars['columns'] = 4;
-  }
-}
