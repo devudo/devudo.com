@@ -1,0 +1,13 @@
+name = Field placeholder
+description = Provides a placeholder for text based field widgets
+package = Fields
+core = 7.x
+dependencies[] = field
+
+
+; Information added by drupal.org packaging script on 2013-03-25
+version = "7.x-1.0-rc2"
+core = "7.x"
+project = "field_placeholder"
+datestamp = "1364248812"
+
