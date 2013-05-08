@@ -21,25 +21,25 @@ html body.admin-menu {
 /**
  * Splash Page
  */
-.page-login .main-container,
-.page-login #navbar .container {
+.page-login .main-container, .page-home .main-container,
+.page-login #navbar .container, .page-home #navbar .container {
   width: 300px;
 }
 
-.page-login a.logo {
+.page-login a.logo, .page-home a.logo {
   width: 100%;
   float: none;
   display: block;
   text-align: center;
 }
-.page-login h1.brand {
+.page-login h1.brand, .page-login h1.brand {
   width: 100%;
   float: none;
   display: block;
   text-align: center;
 }
 
-.page-login .navbar-fixed-top {
+.page-login .navbar-fixed-top , .page-login .navbar-fixed-top{
   position: static;
 }
 
