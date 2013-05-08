@@ -36,6 +36,9 @@ function devudo_custom_menu_alter(&$items){
   $items['user/password'] =
   $items['user'] =
     array();
+ 
+  // Create Account
+  $items['user/register']['title'] = 'Create Account';
     
   // Change tab names for users
   $items['user/%user/view']['title'] = t('Profile');
