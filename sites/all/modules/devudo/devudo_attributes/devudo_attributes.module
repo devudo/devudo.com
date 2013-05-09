@@ -67,7 +67,8 @@ function devudo_attributes_node_load($nodes, $types) {
       //  $node->attributes->devudo['devmaster_parent_ip'] =  $ip;
       //}
 
-      // Flavor (size), image (os), Role, etc.
+      // IP, Flavor (size), image (os), Role, etc.
+      $node->attributes->devudo['ip'] = $node->field_ip[LANGUAGE_NONE][0]['value'];
       $node->attributes->devudo['rackspace_flavor'] = $node->field_rackspace_flavor[LANGUAGE_NONE][0]['value'];
       $node->attributes->devudo['rackspace_image'] = variable_get('devudo_default_rackspace_image' , 'e4dbdba7-b2a4-4ee5-8e8f-4595b6d694ce');
       $node->attributes->devudo['chef_role'] = $node->field_chef_role[LANGUAGE_NONE][0]['value'];
