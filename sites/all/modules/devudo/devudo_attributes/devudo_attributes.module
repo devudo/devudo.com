@@ -66,6 +66,9 @@ function devudo_attributes_node_load($nodes, $types) {
       //  $ip = $parent_server->ip_addresses[0];
       //  $node->attributes->devudo['devmaster_parent_ip'] =  $ip;
       //}
+      
+      // This server's Shopmaster
+      $node->attributes->devudo['shopmaster'] = $_SERVER['HTTP_HOST'];
 
       // IP, Flavor (size), image (os), Role, etc.
       $node->attributes->devudo['ip'] = $node->field_ip[LANGUAGE_NONE][0]['value'];
