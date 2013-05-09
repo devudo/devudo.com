@@ -1,0 +1,109 @@
+<?php
+
+/**
+ * Implements hook_nodeapi_TYPE_OP()
+ * CHEF NODE ATTRIBUTES get loaded in here.
+ * Load attributes into our server node here.
+ */
+function devudo_attributes_node_load($nodes, $types) {
+  // Decide whether any of $types are relevant to our purposes.
+  if (count(array_intersect(array('server'), $types))) {
+    foreach ($nodes as &$node) {
+      // Build attributes object
+      $node->attributes = new stdClass;
+      $uids = array();
+      
+      // Technically, we should inclue user 1 since they too can "access all servers"
+      $uids[1] = 1;
+    
+      // Devudo server users.
+      // Add any users that can "access all servers"
+      $sql = "SELECT u.uid, u.name FROM users u
+      INNER JOIN users_roles ur ON u.uid = ur.uid
+      INNER JOIN role_permission p ON ur.rid = p.rid
+      WHERE p.permission = :permission";
+      $results = db_query($sql, array(':permission' => 'access all servers'));
+      foreach ($results as $result) {
+        $uids[$result->uid] = $result->uid;
+      }
+      
+      // Get users from the field
+      $server_users = field_get_items('node', $node, 'field_server_users');
+      if (!empty($server_users)){
+        foreach ($server_users as $data){
+          $uids[$data['target_id']] = $data['target_id'];
+        }
+      }
+      
+      // for all found UIDs, load up their SSH keys
+      $all_keys = array();
+      foreach ($uids as $uid){
+        $account = user_load($uid);
+        if ($account){
+          $account_keys = array();
+          $keys = sshkey_load_all_by_entity('user', $account->uid);
+          foreach ($keys as $key){
+            $all_keys[] = $key->value;
+            $account_keys[] = $key->value;
+          }
+          // Adding each users authorized key.  Each item in this array gets a server account.
+          $node->attributes->devudo['users'][$account->name] = implode("\n", $account_keys);
+        }
+      }
+      
+      // Add this servers public key to devudo user.
+      $node->attributes->devudo['users']['devudo'] = variable_get('shopmaster_ssh_public_key', '');
+      
+      // Adding the author of the node as the admin user on the devshop
+      $node->attributes->aegir['client_email'] = variable_get('devudo_devshop_admin_email', 'jon@devudo.com');
+      
+      // Authorized Keys to add to aegir user
+      $node->attributes->aegir['authorized_keys'] = implode("\n", $all_keys);
+      
+      // If there is a devmaster parent, load the attributes needed to connect
+      //if (!empty($node->field_devshop[0]['nid'])){
+      //  $parent_server = node_load($node->field_devshop[0]['nid']);
+      //  $ip = $parent_server->ip_addresses[0];
+      //  $node->attributes->devudo['devmaster_parent_ip'] =  $ip;
+      //}
+
+      // Flavor (size), image (os), Role, etc.
+      $node->attributes->devudo['rackspace_flavor'] = $node->field_rackspace_flavor[LANGUAGE_NONE][0]['value'];
+      $node->attributes->devudo['rackspace_image'] = variable_get('devudo_default_rackspace_image' , 'e4dbdba7-b2a4-4ee5-8e8f-4595b6d694ce');
+      $node->attributes->devudo['chef_role'] = $node->field_chef_role[LANGUAGE_NONE][0]['value'];
+      
+      // PHP
+      $node->attributes->php['tuneable']['memory_limit'] = $node->field_attr_php_memory_limit[LANGUAGE_NONE][0]['value'];
+      $node->attributes->php['version'] = $node->field_attr_php_version[LANGUAGE_NONE][0]['value'];
+      
+      // NewRelic
+      if (!empty($node->field_attr_newrelic_apikey[0]['value'])){
+        $node->attributes->newrelic['server_monitoring']['license'] = (string) $node->field_attr_newrelic_license[LANGUAGE_NONE][0]['value'];
+        $node->attributes->newrelic['application_monitoring']['license'] = (string) $node->field_attr_newrelic_license[LANGUAGE_NONE][0]['value'];  
+      }
+
+
+    }
+  }
+}
+
+/**
+ * Implements hook_menu()
+ */
+function devudo_attributes_menu() {
+  $items = array();
+  
+  // Devel token pages.
+  if (module_exists('devel')) {
+    $items['node/%node/devel/attributes'] = array(
+      'title' => 'Attributes', 
+      'page callback' => 'devudo_attributes_devel', 
+      'page arguments' => array(1), 
+      'access arguments' => array('access devel information'), 
+      'type' => MENU_LOCAL_TASK, 
+      'file' => 'devudo_attributes.pages.inc', 
+      'weight' => 5,
+    );
+  }
+  return $items;
+}
