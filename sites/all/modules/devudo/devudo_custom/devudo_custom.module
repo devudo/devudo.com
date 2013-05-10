@@ -79,3 +79,24 @@ function devudo_custom_block_view_alter(&$data, $block){
   }
 }
 
+function devudo_custom_requirements($phase) {
+  $requirements = array();
+
+  if ($phase == 'runtime') {
+    $pubkey = variable_get('shopmaster_ssh_public_key', '');
+    
+    $requirements['devudo_shopmaster'] = array(
+      'title' => 'Public SSH Key',
+      'value' => "<textarea>$pubkey</textarea>",
+      'description' => "This server's Public Key needs to be saved as a variable.  ",
+    );
+    
+    if (!$pubkey) {
+      $requirements['devudo_shopmaster']['description'] .= "Run <code>drush vset shopmaster_ssh_public_key \"$(cat ~/.ssh/id_rsa.pub)\" --yes</code>";
+      $requirements['devudo_shopmaster']['severity'] = REQUIREMENT_ERROR;
+      $requirements['devudo_shopmaster']['value'] = '<em>Unknown</em>';
+    }
+  }
+
+  return $requirements;
+}
